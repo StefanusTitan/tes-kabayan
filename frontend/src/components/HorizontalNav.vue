@@ -19,14 +19,28 @@
         >
           {{ item.label }}
         </v-btn>
+
+        <v-btn
+          color="error"
+          variant="text"
+          class="text-none"
+          rounded="pill"
+          prepend-icon="mdi-logout"
+          :loading="isLoggingOut"
+          @click="handleLogout"
+        >
+          Logout
+        </v-btn>
       </div>
     </div>
   </v-app-bar>
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
+  import { logout } from '@/api/auth'
+  import { useAppStore } from '@/stores/app'
 
   type NavItem = {
     path: string
@@ -35,6 +49,8 @@
 
   const router = useRouter()
   const route = useRoute()
+  const appStore = useAppStore()
+  const isLoggingOut = ref(false)
 
   const navItems = computed<NavItem[]>(() => {
     return router.getRoutes()
@@ -53,6 +69,24 @@
     if (path === '/') return route.path === '/'
 
     return route.path === path || route.path.startsWith(`${path}/`)
+  }
+
+  const handleLogout = async () => {
+    if (isLoggingOut.value) {
+      return
+    }
+
+    try {
+      isLoggingOut.value = true
+      await logout()
+      appStore.isAuthenticated = false
+      appStore.user = null
+      await router.push('/auth')
+    } catch (error) {
+      console.error('Logout failed from navigation:', error)
+    } finally {
+      isLoggingOut.value = false
+    }
   }
 </script>
 
