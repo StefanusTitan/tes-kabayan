@@ -20,7 +20,27 @@ const router = createRouter({
       path: '/auth',
       component: () => import('@/pages/auth.vue'),
       name: 'auth',
-    }
+    },
+    {
+      path: '/pembeli',
+      component: () => import('@/pages/pembeli/index.vue'),
+      name: 'pembeli',
+    },
+    // {
+    //   path: '/barang',
+    //   component: () => import('@/pages/barang.vue'),
+    //   name: 'barang',
+    // },
+    // {
+    //   path: '/transaksi',
+    //   component: () => import('@/pages/transaksi.vue'),
+    //   name: 'transaksi',
+    // },
+    // {
+    //   path: '/insights',
+    //   component: () => import('@/pages/insights.vue'),
+    //   name: 'insights',
+    // }
   ],
 })
 

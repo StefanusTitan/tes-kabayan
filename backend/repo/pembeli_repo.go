@@ -24,7 +24,7 @@ func NewPembeliRepository(db *gorm.DB) PembeliRepository {
 
 func (r *pembeliRepo) FindAll(search string) ([]models.Pembeli, error) {
 	var pembeli []models.Pembeli
-	query := r.db.Preload("Barang")
+	query := r.db.Model(&models.Pembeli{})
 
 	if search != "" {
 		query = query.Where("nama LIKE ?", "%"+search+"%")
@@ -36,7 +36,7 @@ func (r *pembeliRepo) FindAll(search string) ([]models.Pembeli, error) {
 
 func (r *pembeliRepo) FindByID(id uint) (*models.Pembeli, error) {
 	var pembeli models.Pembeli
-	err := r.db.Preload("Barang").First(&pembeli, id).Error
+	err := r.db.First(&pembeli, id).Error
 	return &pembeli, err
 }
 

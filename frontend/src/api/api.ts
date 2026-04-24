@@ -7,12 +7,26 @@ if (!BASE_URL) {
 console.log('API Base URL:', BASE_URL);
 
 interface FetchOptions extends Omit<RequestInit, 'body'> {
-  body?: unknown; 
+  body?: unknown;
+  params?: Record<string, string | number | boolean | null | undefined>;
 }
 
 async function fetchClient<T>(endpoint: string, options: FetchOptions = {}): Promise<T | null> {
-  const url = `${BASE_URL}${endpoint}`;
-  const { body, ...requestOptions } = options;
+  const { body, params, ...requestOptions } = options;
+
+  let url = `${BASE_URL}${endpoint}`;
+  if (params) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null) {
+        query.append(key, String(value));
+      }
+    }
+    const queryString = query.toString();
+    if (queryString) {
+      url = `${url}${url.includes('?') ? '&' : '?'}${queryString}`;
+    }
+  }
 
   const defaultHeaders: HeadersInit = {
     'Content-Type': 'application/json',
@@ -56,8 +70,13 @@ async function fetchClient<T>(endpoint: string, options: FetchOptions = {}): Pro
 }
 
 export const api = {
-  get: <T>(endpoint: string, headers?: HeadersInit) => 
-    fetchClient<T>(endpoint, { method: 'GET', headers }),
+  get: <T>(
+    endpoint: string,
+    options?: {
+      headers?: HeadersInit;
+      params?: Record<string, string | number | boolean | null | undefined>;
+    },
+  ) => fetchClient<T>(endpoint, { method: 'GET', headers: options?.headers, params: options?.params }),
 
   post: <T>(endpoint: string, body?: unknown, headers?: HeadersInit) => 
     fetchClient<T>(endpoint, { method: 'POST', body, headers }),
