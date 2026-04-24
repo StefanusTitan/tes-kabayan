@@ -11,6 +11,12 @@ interface FetchOptions extends Omit<RequestInit, 'body'> {
   params?: Record<string, string | number | boolean | null | undefined>;
 }
 
+type ApiErrorBody = {
+  error?: string;
+  message?: string;
+  detail?: string;
+}
+
 async function fetchClient<T>(endpoint: string, options: FetchOptions = {}): Promise<T | null> {
   const { body, params, ...requestOptions } = options;
 
@@ -51,9 +57,16 @@ async function fetchClient<T>(endpoint: string, options: FetchOptions = {}): Pro
     const response = await fetch(url, config);
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      const errorMessage = errorData?.message || `Error: ${response.status} ${response.statusText}`;
-      throw new Error(errorMessage);
+      const errorData = await response.json().catch(() => null) as ApiErrorBody | null;
+      const errorMessage =
+        errorData?.error ||
+        errorData?.message ||
+        errorData?.detail ||
+        `Error: ${response.status} ${response.statusText}`;
+      const apiError = new Error(errorMessage) as Error & { status: number; data: ApiErrorBody | null };
+      apiError.status = response.status;
+      apiError.data = errorData;
+      throw apiError;
     }
 
     if (response.status === 204) {

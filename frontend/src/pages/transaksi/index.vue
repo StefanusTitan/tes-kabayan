@@ -251,6 +251,17 @@ const cartTotalPrice = computed(() => {
   return cartItems.value.reduce((total, item) => total + (item.harga * item.quantity), 0)
 })
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+  return String(error)
+}
+
+const isInsufficientStockError = (error: unknown) => {
+  return getErrorMessage(error).toLowerCase().includes('insufficient stock')
+}
+
 const formatDate = (value: string) => {
   return new Intl.DateTimeFormat('id-ID', {
     dateStyle: 'medium',
@@ -366,6 +377,7 @@ const handleCheckout = async () => {
 
   try {
     creating.value = true
+    const currentCartItems = [...cartItems.value]
     const payloads = cartItems.value.map((item) => ({
       pembeli_id: Number(form.pembeliId),
       barang_id: item.barangId,
@@ -375,14 +387,21 @@ const handleCheckout = async () => {
     const results = await Promise.allSettled(payloads.map((payload) => createTransaksi(payload)))
 
     const failedItems: CartItem[] = []
+    const stockFailedItems: CartItem[] = []
     let successCount = 0
 
     results.forEach((result, index) => {
       if (result.status === 'fulfilled') {
         successCount += 1
       } else {
-        failedItems.push(cartItems.value[index])
-        console.error(`Error creating transaksi for item #${cartItems.value[index].barangId}:`, result.reason)
+        const failedItem = currentCartItems[index]
+        failedItems.push(failedItem)
+
+        if (isInsufficientStockError(result.reason)) {
+          stockFailedItems.push(failedItem)
+        }
+
+        console.error(`Error creating transaksi for item #${failedItem.barangId}:`, result.reason)
       }
     })
 
@@ -390,6 +409,12 @@ const handleCheckout = async () => {
 
     if (failedItems.length === 0) {
       window.alert(`Berhasil menyimpan ${successCount} item transaksi.`)
+    } else if (stockFailedItems.length === failedItems.length) {
+      const failedNames = stockFailedItems.map((item) => item.barangNama).join(', ')
+      window.alert(
+        `Berhasil menyimpan ${successCount} item. Stok tidak cukup untuk: ${failedNames}. ` +
+        'Item yang gagal tetap ada di keranjang.',
+      )
     } else {
       window.alert(`Berhasil menyimpan ${successCount} item. ${failedItems.length} item gagal dan tetap ada di keranjang.`)
     }
