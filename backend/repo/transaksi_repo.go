@@ -10,7 +10,7 @@ import (
 type TransaksiRepository interface {
 	FindAll(filter TransaksiFilter) ([]models.Transaksi, error)
 	FindByID(id uint) (*models.Transaksi, error)
-	Create(transaksi models.Transaksi) error
+	Create(transaksi *models.Transaksi) error
 	Delete(id uint) error
 }
 
@@ -65,8 +65,8 @@ func (r *transaksiRepo) FindByID(id uint) (*models.Transaksi, error) {
 	return &transaksi, err
 }
 
-func (r *transaksiRepo) Create(transaksi models.Transaksi) error {
-	return r.db.Create(&transaksi).Error
+func (r *transaksiRepo) Create(transaksi *models.Transaksi) error {
+	return r.db.Create(transaksi).Error
 }
 
 func (r *transaksiRepo) Delete(id uint) error {

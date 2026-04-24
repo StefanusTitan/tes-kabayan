@@ -37,7 +37,7 @@ func (s *pembeliService) CreatePembeli(req models.PembeliReq) (*models.Pembeli, 
 		Alamat: req.Alamat,
 		NoTelp: req.NoTelp,
 	}
-	err := s.repo.Create(pembeli)
+	err := s.repo.Create(&pembeli)
 	return &pembeli, err
 }
 
@@ -48,7 +48,7 @@ func (s *pembeliService) UpdatePembeli(id uint, req models.PembeliReq) (*models.
 		Alamat: req.Alamat,
 		NoTelp: req.NoTelp,
 	}
-	err := s.repo.Update(pembeli)
+	err := s.repo.Update(&pembeli)
 	return &pembeli, err
 }
 

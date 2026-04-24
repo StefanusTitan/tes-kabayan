@@ -37,7 +37,7 @@ func (s *transaksiService) CreateTransaksi(req models.TransaksiReq) (*models.Tra
 		BarangID:  req.BarangID,
 		Quantity:  req.Quantity,
 	}
-	err := s.repo.Create(transaksi)
+	err := s.repo.Create(&transaksi)
 	return &transaksi, err
 }
 

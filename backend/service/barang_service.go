@@ -32,13 +32,13 @@ func (s *barangService) GetBarangByID(id uint) (*models.Barang, error) {
 }
 
 func (s *barangService) CreateBarang(barang *models.Barang) (*models.Barang, error) {
-	err := s.repo.Create(*barang)
+	err := s.repo.Create(barang)
 	return barang, err
 }
 
 func (s *barangService) UpdateBarang(id uint, barang *models.Barang) (*models.Barang, error) {
 	barang.ID = id
-	err := s.repo.Update(*barang)
+	err := s.repo.Update(barang)
 	return barang, err
 }
 

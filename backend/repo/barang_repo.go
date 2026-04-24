@@ -9,8 +9,8 @@ import (
 type BarangRepository interface {
 	FindAll(search string) ([]models.Barang, error)
 	FindByID(id uint) (*models.Barang, error)
-	Create(barang models.Barang) error
-	Update(barang models.Barang) error
+	Create(barang *models.Barang) error
+	Update(barang *models.Barang) error
 	Delete(id uint) error
 }
 
@@ -38,11 +38,11 @@ func (r *barangRepo) FindByID(id uint) (*models.Barang, error) {
 	return &barang, err
 }
 
-func (r *barangRepo) Create(barang models.Barang) error {
-	return r.db.Create(&barang).Error
+func (r *barangRepo) Create(barang *models.Barang) error {
+	return r.db.Create(barang).Error
 }
 
-func (r *barangRepo) Update(barang models.Barang) error {
+func (r *barangRepo) Update(barang *models.Barang) error {
 	return r.db.Model(&models.Barang{}).Where("id = ?", barang.ID).Updates(barang).Error
 }
 

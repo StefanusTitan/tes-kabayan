@@ -9,8 +9,8 @@ import (
 type PembeliRepository interface {
 	FindAll(search string) ([]models.Pembeli, error)
 	FindByID(id uint) (*models.Pembeli, error)
-	Create(pembeli models.Pembeli) error
-	Update(pembeli models.Pembeli) error
+	Create(pembeli *models.Pembeli) error
+	Update(pembeli *models.Pembeli) error
 	Delete(id uint) error
 }
 
@@ -40,11 +40,11 @@ func (r *pembeliRepo) FindByID(id uint) (*models.Pembeli, error) {
 	return &pembeli, err
 }
 
-func (r *pembeliRepo) Create(pembeli models.Pembeli) error {
-	return r.db.Create(&pembeli).Error
+func (r *pembeliRepo) Create(pembeli *models.Pembeli) error {
+	return r.db.Create(pembeli).Error
 }
 
-func (r *pembeliRepo) Update(pembeli models.Pembeli) error {
+func (r *pembeliRepo) Update(pembeli *models.Pembeli) error {
 	return r.db.Model(&models.Pembeli{}).Where("id = ?", pembeli.ID).Updates(pembeli).Error
 }
 
