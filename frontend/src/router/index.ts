@@ -16,31 +16,50 @@ const router = createRouter({
     {
       path: '/',
       component: Index,
+      name: 'home',
+      meta: {
+        hideNav: true,
+      },
     },
     {
       path: '/auth',
       component: () => import('@/pages/auth.vue'),
       name: 'auth',
+      meta: {
+        hideNav: true,
+      },
     },
     {
       path: '/pembeli',
       component: () => import('@/pages/pembeli/index.vue'),
       name: 'pembeli',
+      meta: {
+        navLabel: 'Pembeli',
+      },
     },
-    // {
-    //   path: '/barang',
-    //   component: () => import('@/pages/barang.vue'),
-    //   name: 'barang',
-    // },
+    {
+      path: '/barang',
+      component: () => import('@/pages/barang/index.vue'),
+      name: 'barang',
+      meta: {
+        navLabel: 'Barang',
+      },
+    },
     // {
     //   path: '/transaksi',
     //   component: () => import('@/pages/transaksi.vue'),
     //   name: 'transaksi',
+    //   meta: {
+    //     navLabel: 'Transaksi',
+    //   },
     // },
     // {
     //   path: '/insights',
     //   component: () => import('@/pages/insights.vue'),
     //   name: 'insights',
+    //   meta: {
+    //     navLabel: 'Insights',
+    //   },
     // }
   ],
 })
