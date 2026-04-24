@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"tes-kabayan/backend/models"
@@ -75,6 +76,14 @@ func (h *TransaksiHandler) CreateTransaksi(c *gin.Context) {
 	}
 	transaksi, err := h.svc.CreateTransaksi(req)
 	if err != nil {
+		if errors.Is(err, repo.ErrInsufficientStock) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if errors.Is(err, repo.ErrBarangNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

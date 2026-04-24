@@ -1,11 +1,18 @@
 package repo
 
 import (
+	"errors"
 	"strings"
 	"tes-kabayan/backend/models"
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+var (
+	ErrInsufficientStock = errors.New("insufficient stock")
+	ErrBarangNotFound    = errors.New("barang not found")
 )
 
 type TransaksiRepository interface {
@@ -75,7 +82,32 @@ func (r *transaksiRepo) FindByID(id uint) (*models.Transaksi, error) {
 }
 
 func (r *transaksiRepo) Create(transaksi *models.Transaksi) error {
-	return r.db.Create(transaksi).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		var barang models.Barang
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&barang, transaksi.BarangID).Error
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrBarangNotFound
+			}
+			return err
+		}
+
+		if barang.Stock < transaksi.Quantity {
+			return ErrInsufficientStock
+		}
+
+		updateResult := tx.Model(&models.Barang{}).
+			Where("id = ? AND stock >= ?", transaksi.BarangID, transaksi.Quantity).
+			Update("stock", gorm.Expr("stock - ?", transaksi.Quantity))
+		if updateResult.Error != nil {
+			return updateResult.Error
+		}
+		if updateResult.RowsAffected == 0 {
+			return ErrInsufficientStock
+		}
+
+		return tx.Create(transaksi).Error
+	})
 }
 
 func (r *transaksiRepo) Delete(id uint) error {
