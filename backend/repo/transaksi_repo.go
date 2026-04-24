@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type transaksiRepository interface {
+type TransaksiRepository interface {
 	FindAll(filter TransaksiFilter) ([]models.Transaksi, error)
 	FindByID(id uint) (*models.Transaksi, error)
 	Create(transaksi models.Transaksi) error
@@ -18,7 +18,7 @@ type transaksiRepo struct {
 	db *gorm.DB
 }
 
-func NewTransaksiRepository(db *gorm.DB) transaksiRepository {
+func NewTransaksiRepository(db *gorm.DB) TransaksiRepository {
 	return &transaksiRepo{db}
 }
 

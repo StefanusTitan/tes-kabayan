@@ -7,3 +7,10 @@ type Barang struct {
 	Harga     int64  `gorm:"not null" json:"harga"`
 	Stock     int    `gorm:"not null" json:"stock"`
 }
+
+type BarangReq struct {
+	Nama      string `json:"nama,omitempty" binding:"required"`
+	Deskripsi string `json:"deskripsi,omitempty"`
+	Harga     int64  `json:"harga,omitempty"`
+	Stock     int    `json:"stock,omitempty"`
+}

@@ -6,3 +6,9 @@ type Pembeli struct {
 	Alamat string `gorm:"type:varchar(255)" json:"alamat"`
 	NoTelp string `gorm:"type:varchar(20)" json:"no_telp"`
 }
+
+type PembeliReq struct {
+	Nama   string `json:"nama,omitempty" binding:"required"`
+	Alamat string `json:"alamat,omitempty"`
+	NoTelp string `json:"no_telp,omitempty"`
+}

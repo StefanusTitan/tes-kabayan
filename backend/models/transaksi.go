@@ -13,7 +13,7 @@ type Transaksi struct {
 }
 
 type TransaksiReq struct {
-	PembeliID *uint `json:"pembeli_id,omitempty"`
-	BarangID  *uint `json:"barang_id,omitempty"`
-	Quantity  *int  `json:"quantity,omitempty"`
+	PembeliID uint `json:"pembeli_id,omitempty" binding:"required"`
+	BarangID  uint `json:"barang_id,omitempty" binding:"required"`
+	Quantity  int  `json:"quantity,omitempty" binding:"required,min=1"`
 }
