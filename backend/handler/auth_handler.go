@@ -70,3 +70,20 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	)
 	c.JSON(http.StatusOK, gin.H{"message": "Logout berhasil"})
 }
+
+func (h *AuthHandler) Me(c *gin.Context) {
+	userID, hasUserID := c.Get("userID")
+	username, hasUsername := c.Get("username")
+
+	if !hasUserID || !hasUsername {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"id":       userID,
+			"username": username,
+		},
+	})
+}

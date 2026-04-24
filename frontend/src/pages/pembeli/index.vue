@@ -51,7 +51,21 @@
             <td>{{ pembeli.alamat }}</td>
             <td>{{ pembeli.no_telp }}</td>
             <td>
-              <v-btn size="small" variant="text" color="primary" icon="mdi-pencil" @click="openEditModal(pembeli)" />
+              <v-btn
+                size="small"
+                variant="text"
+                color="primary"
+                icon="mdi-pencil"
+                @click="openEditModal(pembeli)"
+              />
+              <v-btn
+                size="small"
+                variant="text"
+                color="error"
+                icon="mdi-delete"
+                :loading="deletingId === pembeli.id"
+                @click="handleDelete(pembeli)"
+              />
             </td>
           </tr>
           <tr v-if="!loading && pembelis.length === 0">
@@ -79,11 +93,12 @@
 import { ref, onMounted } from 'vue'
 import PembeliCreateModal from '@/components/PembeliCreateModal.vue'
 import PembeliUpdateModal from '@/components/PembeliUpdateModal.vue'
-import { getSemuaPembeli, type Pembeli } from '@/api/pembeli'
+import { deletePembeli, getSemuaPembeli, type Pembeli } from '@/api/pembeli'
 
 const pembelis = ref<Pembeli[]>([])
 const searchNama = ref('')
 const loading = ref(false)
+const deletingId = ref<number | null>(null)
 const isCreateModalOpen = ref(false)
 const isUpdateModalOpen = ref(false)
 const selectedPembeli = ref<Pembeli | null>(null)
@@ -111,6 +126,23 @@ const openEditModal = (pembeli: Pembeli) => {
 
 const handleMutated = async () => {
   await fetchPembeli()
+}
+
+const handleDelete = async (pembeli: Pembeli) => {
+  const isConfirmed = window.confirm(`Hapus pembeli \"${pembeli.nama}\"?`)
+  if (!isConfirmed) {
+    return
+  }
+
+  try {
+    deletingId.value = pembeli.id
+    await deletePembeli(pembeli.id)
+    await fetchPembeli()
+  } catch (error) {
+    console.error('Error deleting pembeli:', error)
+  } finally {
+    deletingId.value = null
+  }
 }
 
 onMounted(async () => {
