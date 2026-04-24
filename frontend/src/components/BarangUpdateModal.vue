@@ -2,50 +2,55 @@
   <v-dialog :model-value="modelValue" max-width="640" @update:model-value="onDialogChange">
     <v-card>
       <v-card-title class="text-h6">Ubah Barang</v-card-title>
-      <v-card-text>
-        <v-label class="mb-1" for="nama">Nama <span class="!text-red-500">*</span></v-label>
-        <v-text-field
-          v-model="form.nama"
-          variant="outlined"
-          class="mb-3"
-          required
-        />
-        <v-textarea
-          v-model="form.deskripsi"
-          label="Deskripsi"
-          variant="outlined"
-          class="mb-3"
-          rows="3"
-          auto-grow
-        />
-        <v-label class="mb-1" for="harga">Harga <span class="!text-red-500">*</span></v-label>
-        <v-text-field
-          v-model.number="form.harga"
-          type="number"
-          variant="outlined"
-          class="mb-3"
-          min="0"
-        />
-        <v-label class="mb-1" for="stock">Stok <span class="!text-red-500">*</span></v-label>
-        <v-text-field
-          v-model.number="form.stock"
-          type="number"
-          variant="outlined"
-          min="0"
-        />
-      </v-card-text>
-      <v-card-actions class="justify-end">
-        <v-btn variant="text" :disabled="loading" @click="closeModal">Batal</v-btn>
-        <v-btn color="primary" :loading="loading" :disabled="!form.nama.trim() || !selectedBarang" @click="submitForm">
-          Perbarui
-        </v-btn>
-      </v-card-actions>
+      <v-form ref="formRef" v-model="isFormValid" @submit.prevent="submitForm">
+        <v-card-text>
+          <v-label class="mb-1" for="nama">Nama <span class="!text-red-500">*</span></v-label>
+          <v-text-field
+            v-model="form.nama"
+            variant="outlined"
+            class="mb-3"
+            :rules="namaRules"
+            required
+          />
+          <v-textarea
+            v-model="form.deskripsi"
+            label="Deskripsi"
+            variant="outlined"
+            class="mb-3"
+            rows="3"
+            auto-grow
+          />
+          <v-label class="mb-1" for="harga">Harga <span class="!text-red-500">*</span></v-label>
+          <v-text-field
+            v-model.number="form.harga"
+            type="number"
+            variant="outlined"
+            class="mb-3"
+            min="0"
+            :rules="numberRules"
+          />
+          <v-label class="mb-1" for="stock">Stok <span class="!text-red-500">*</span></v-label>
+          <v-text-field
+            v-model.number="form.stock"
+            type="number"
+            variant="outlined"
+            min="0"
+            :rules="numberRules"
+          />
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn variant="text" :disabled="loading" @click="closeModal">Batal</v-btn>
+          <v-btn color="primary" type="submit" :loading="loading" :disabled="!canSubmit">
+            Perbarui
+          </v-btn>
+        </v-card-actions>
+      </v-form>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { updateBarang, type Barang, type BarangPayload } from '@/api/barang'
 
 interface Props {
@@ -60,12 +65,18 @@ const emit = defineEmits<{
 }>()
 
 const loading = ref(false)
+const formRef = ref<{ validate: () => Promise<{ valid: boolean }>; resetValidation: () => void } | null>(null)
+const isFormValid = ref(false)
 const form = ref<BarangPayload>({
   nama: '',
   deskripsi: '',
   harga: 0,
   stock: 0
 })
+
+const namaRules = [(value: string) => !!value?.trim() || 'Nama wajib diisi']
+const numberRules = [(value: number | string) => Number(value) >= 0 || 'Nilai tidak boleh negatif']
+const canSubmit = computed(() => isFormValid.value && !loading.value && !!props.selectedBarang)
 
 const closeModal = () => {
   emit('update:modelValue', false)
@@ -76,7 +87,12 @@ const onDialogChange = (value: boolean) => {
 }
 
 const submitForm = async () => {
-  if (!props.selectedBarang || !form.value.nama.trim()) {
+  if (!props.selectedBarang) {
+    return
+  }
+
+  const validation = await formRef.value?.validate()
+  if (!validation?.valid) {
     return
   }
 
@@ -99,7 +115,7 @@ const submitForm = async () => {
 
 watch(
   () => [props.modelValue, props.selectedBarang] as const,
-  ([isOpen, selectedBarang]) => {
+  async ([isOpen, selectedBarang]) => {
     if (!isOpen || !selectedBarang) {
       return
     }
@@ -110,6 +126,9 @@ watch(
       harga: selectedBarang.harga,
       stock: selectedBarang.stock
     }
+
+    await nextTick()
+    formRef.value?.resetValidation()
   },
   { immediate: true }
 )
