@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"strings"
 	"tes-kabayan/backend/models"
 	"time"
 
@@ -35,28 +36,36 @@ func (r *transaksiRepo) FindAll(filter TransaksiFilter) ([]models.Transaksi, err
 		Preload("Pembeli").
 		Preload("Barang")
 
-	if filter.Search != "" {
-		query = query.
-			Joins("JOIN barang ON barang.id = transaksi.barang_id").
-			Joins("JOIN pembeli ON pembeli.id = transaksi.pembeli_id").
-			Where("barang.nama LIKE ? OR pembeli.nama LIKE ?",
-				"%"+filter.Search+"%", "%"+filter.Search+"%")
-	}
-
 	if filter.PembeliID != 0 {
-		query = query.Where("transaksi.pembeli_id = ?", filter.PembeliID)
+		query = query.Where("pembeli_id = ?", filter.PembeliID)
 	}
 
 	if !filter.StartDate.IsZero() {
-		query = query.Where("transaksi.created_at >= ?", filter.StartDate)
+		query = query.Where("created_at >= ?", filter.StartDate)
 	}
 
 	if !filter.EndDate.IsZero() {
-		query = query.Where("transaksi.created_at < ?", filter.EndDate.AddDate(0, 0, 1))
+		query = query.Where("created_at < ?", filter.EndDate.AddDate(0, 0, 1))
 	}
 
-	err := query.Find(&transaksi).Error
-	return transaksi, err
+	err := query.Order("created_at DESC").Find(&transaksi).Error
+	if err != nil {
+		return transaksi, err
+	}
+
+	if filter.Search == "" {
+		return transaksi, nil
+	}
+
+	needle := strings.ToLower(strings.TrimSpace(filter.Search))
+	filtered := make([]models.Transaksi, 0, len(transaksi))
+	for _, t := range transaksi {
+		if strings.Contains(strings.ToLower(t.Barang.Nama), needle) || strings.Contains(strings.ToLower(t.Pembeli.Nama), needle) {
+			filtered = append(filtered, t)
+		}
+	}
+
+	return filtered, nil
 }
 
 func (r *transaksiRepo) FindByID(id uint) (*models.Transaksi, error) {

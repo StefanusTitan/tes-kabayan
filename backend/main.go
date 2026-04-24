@@ -25,7 +25,7 @@ func main() {
 	db_host := os.Getenv("DB_HOST")
 	db_port := os.Getenv("DB_PORT")
 	config.InitDB(db_name, db_user, db_password, db_host, db_port)
-	config.DB.AutoMigrate(&models.User{}, &models.Barang{}, &models.Pembeli{})
+	config.DB.AutoMigrate(&models.User{}, &models.Barang{}, &models.Pembeli{}, &models.Transaksi{})
 
 	// Auth
 	userRepo := repo.NewUserRepository(config.DB)

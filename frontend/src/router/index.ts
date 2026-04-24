@@ -45,22 +45,22 @@ const router = createRouter({
         navLabel: 'Barang',
       },
     },
-    // {
-    //   path: '/transaksi',
-    //   component: () => import('@/pages/transaksi.vue'),
-    //   name: 'transaksi',
-    //   meta: {
-    //     navLabel: 'Transaksi',
-    //   },
-    // },
-    // {
-    //   path: '/insights',
-    //   component: () => import('@/pages/insights.vue'),
-    //   name: 'insights',
-    //   meta: {
-    //     navLabel: 'Insights',
-    //   },
-    // }
+    {
+      path: '/transaksi',
+      component: () => import('@/pages/transaksi/index.vue'),
+      name: 'transaksi',
+      meta: {
+        navLabel: 'Transaksi',
+      },
+    },
+    {
+      path: '/insights',
+      component: () => import('@/pages/insights/index.vue'),
+      name: 'insights',
+      meta: {
+        navLabel: 'Insights',
+      },
+    },
   ],
 })
 

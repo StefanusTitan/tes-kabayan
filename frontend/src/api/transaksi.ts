@@ -1,29 +1,34 @@
 import { api } from "@/api/api";
 
-export interface TransaksiItem {
+export interface TransaksiPembeli {
   id: number;
-  transaksi_id: number;
-  produk_id: number;
-  jumlah: number;
+  nama: string;
+  alamat: string;
+  no_telp: string;
+}
+
+export interface TransaksiBarang {
+  id: number;
+  nama: string;
+  deskripsi: string;
   harga: number;
+  stock: number;
 }
 
 export interface Transaksi {
   id: number;
   pembeli_id: number;
-  tanggal: string;
-  total: number;
-  items: TransaksiItem[];
+  barang_id: number;
+  quantity: number;
+  created_at: string;
+  pembeli?: TransaksiPembeli;
+  barang?: TransaksiBarang;
 }
 
 export interface TransaksiPayload {
   pembeli_id: number;
-  tanggal: string;
-  items: {
-    produk_id: number;
-    jumlah: number;
-    harga: number;
-  }[];
+  barang_id: number;
+  quantity: number;
 }
 
 export interface TransaksiFilter {
