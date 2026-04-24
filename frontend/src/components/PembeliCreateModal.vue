@@ -3,9 +3,9 @@
     <v-card>
       <v-card-title class="text-h6">Tambah Pembeli</v-card-title>
       <v-card-text>
+        <v-label class="mb-1" for="nama">Nama <span class="!text-red-500">*</span></v-label>
         <v-text-field
           v-model="form.nama"
-          label="Nama"
           variant="outlined"
           class="mb-3"
           required

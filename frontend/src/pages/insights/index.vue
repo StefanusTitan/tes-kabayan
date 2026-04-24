@@ -61,19 +61,22 @@
 					Belum ada data untuk ditampilkan.
 				</div>
 				<div v-else class="chart-wrap">
-					<div class="chart-grid">
-						<div
-							v-for="point in chartData"
-							:key="point.key"
-							class="chart-col"
-						>
-							<div
-								class="chart-bar"
-								:style="{ height: `${point.height}%` }"
-								:title="`${point.label}: ${point.value}`"
-							/>
-							<div class="chart-value">{{ point.value }}</div>
-							<div class="chart-label">{{ point.label }}</div>
+					<v-sparkline
+						:model-value="sparklineValues"
+						color="primary"
+						line-width="3"
+						smooth
+						auto-draw
+						padding="18"
+						height="180"
+					/>
+					<div v-if="!hasAnySales" class="mt-4 text-center text-medium-emphasis">
+						Belum ada penjualan di periode ini (semua nilai masih 0).
+					</div>
+					<div class="chart-meta-grid">
+						<div v-for="point in chartData" :key="point.key" class="chart-meta-item">
+							<strong>{{ point.value }}</strong>
+							<span>{{ point.label }}</span>
 						</div>
 					</div>
 				</div>
@@ -220,13 +223,12 @@ const chartData = computed(() => {
 		}
 	}
 
-	const max = buckets.reduce((highest, item) => Math.max(highest, item.value), 0)
-
-	return buckets.map((item) => ({
-		...item,
-		height: max > 0 ? Math.max((item.value / max) * 100, item.value > 0 ? 8 : 2) : 2,
-	}))
+	return buckets
 })
+
+const sparklineValues = computed(() => chartData.value.map((item) => item.value))
+
+const hasAnySales = computed(() => sparklineValues.value.some((value) => value > 0))
 
 const fetchData = async () => {
 	if (period.value === 'range' && (!startDate.value || !endDate.value)) {
@@ -258,38 +260,36 @@ fetchData()
 .chart-wrap {
 	width: 100%;
 	overflow-x: auto;
+	padding-top: 8px;
 }
 
-.chart-grid {
-	min-height: 240px;
+
+.chart-meta-grid {
+	margin-top: 14px;
 	display: flex;
-	align-items: flex-end;
+	flex-wrap: wrap;
 	gap: 8px;
-	padding: 12px 4px;
+	justify-content: center;
 }
 
-.chart-col {
-	min-width: 44px;
-	flex: 1;
+.chart-meta-item {
+	min-width: 62px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 4px;
+	padding: 4px 6px;
+	border-radius: 8px;
+	background: rgba(var(--v-theme-on-surface), 0.04);
 }
 
-.chart-bar {
-	width: 100%;
-	background: linear-gradient(180deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-primary)) 100%);
-	border-radius: 6px 6px 2px 2px;
-	transition: height 0.25s ease;
-}
 
-.chart-value {
+.chart-meta-item strong {
 	font-size: 11px;
-	color: rgba(var(--v-theme-on-surface), 0.7);
+	color: rgb(var(--v-theme-primary));
 }
 
-.chart-label {
+
+.chart-meta-item span {
 	font-size: 11px;
 	color: rgba(var(--v-theme-on-surface), 0.8);
 }
