@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"gorm.io/gorm/clause"
 )
 
 func main() {
@@ -53,56 +52,4 @@ func main() {
 	routes.SetupRoutes(authHandler, pembeliHandler, barangHandler, transaksiHandler, authService, r)
 
 	r.Run(":" + os.Getenv("PORT"))
-}
-
-func seedData() {
-	user := models.User{
-		Username: "admin",
-		Password: "admin123",
-	}
-
-	barang := []models.Barang{
-		{
-			Nama:      "Barang 1",
-			Deskripsi: "Barang 1 yang sangat bagus",
-			Harga:     10000,
-			Stock:     10,
-		},
-		{
-			Nama:      "Barang 2",
-			Deskripsi: "Barang 2 yang sangat bagus",
-			Harga:     20000,
-			Stock:     20,
-		},
-		{
-			Nama:      "Barang 3",
-			Deskripsi: "Barang 3 yang sangat bagus",
-			Harga:     30000,
-			Stock:     30,
-		},
-	}
-
-	pembeli := []models.Pembeli{
-		{
-			Nama:   "Pembeli 1",
-			Alamat: "Jl. Pembeli 1 No. 1",
-			NoTelp: "081234567890",
-		},
-		{
-			Nama:   "Pembeli 2",
-			Alamat: "Jl. Pembeli 2 No. 2",
-			NoTelp: "081234567891",
-		},
-		{
-			Nama:   "Pembeli 3",
-			Alamat: "Jl. Pembeli 3 No. 3",
-			NoTelp: "081234567892",
-		},
-	}
-
-	config.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&user)
-
-	config.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&barang)
-
-	config.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&pembeli)
 }
